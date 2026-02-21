@@ -14,6 +14,7 @@ export default function MenuCategories() {
   const { tableId } = useParams();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +29,16 @@ export default function MenuCategories() {
 
   if (loading) return <div className="p-8 text-center">Loading menu...</div>;
 
+  const filteredCategories = categories.filter((category) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+
+    return (
+      category.name.toLowerCase().includes(q) ||
+      category.description.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="px-4 py-6 space-y-6">
       <div className="relative">
@@ -35,12 +46,14 @@ export default function MenuCategories() {
         <input 
           type="text" 
           placeholder="Search dishes..." 
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-xl border-none focus:ring-2 focus:ring-blue-500 outline-none"
         />
       </div>
 
       <div className="space-y-4">
-        {categories.map((category, index) => (
+        {filteredCategories.map((category, index) => (
           <motion.div
             key={category.id}
             initial={{ x: -20, opacity: 0 }}
@@ -61,6 +74,12 @@ export default function MenuCategories() {
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </motion.div>
         ))}
+
+        {filteredCategories.length === 0 && (
+          <div className="text-center text-gray-500 bg-white border border-gray-100 rounded-xl p-8">
+            No matching categories found.
+          </div>
+        )}
       </div>
     </div>
   );

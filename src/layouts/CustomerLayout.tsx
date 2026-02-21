@@ -63,9 +63,9 @@ export default function CustomerLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-blue-50/40 to-indigo-50/40 pb-20 font-sans">
       {/* Top Navigation */}
-      <div className="sticky top-0 z-50 bg-white shadow-sm px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-blue-100 px-4 py-3 flex items-center justify-between">
         <button 
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -73,7 +73,7 @@ export default function CustomerLayout() {
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
         
-        <div className="text-sm font-medium text-gray-500">
+        <div className="text-sm font-semibold text-blue-900">
           Table #{tableId}
         </div>
 
