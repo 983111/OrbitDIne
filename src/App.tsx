@@ -13,6 +13,8 @@ import KitchenDisplay from './pages/manager/Kitchen';
 import Settings from './pages/manager/Settings';
 import ManagerLayout from './layouts/ManagerLayout';
 import OwnerDashboard from './pages/owner/Dashboard';
+import AuthLogin from './pages/AuthLogin';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
@@ -30,8 +32,10 @@ export default function App() {
           <Route path="feedback" element={<Feedback />} />
         </Route>
 
+        <Route path="/login" element={<AuthLogin />} />
+
         {/* Manager Routes */}
-        <Route path="/manager" element={<ManagerLayout />}>
+        <Route path="/manager" element={<ProtectedRoute roles={['manager', 'owner']}><ManagerLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/manager/dashboard" />} />
           <Route path="dashboard" element={<ManagerDashboard />} />
           <Route path="orders" element={<ManagerDashboard />} /> {/* Reusing dashboard for now */}
@@ -40,7 +44,7 @@ export default function App() {
         </Route>
 
         {/* Owner Routes */}
-        <Route path="/owner" element={<OwnerDashboard />} />
+        <Route path="/owner" element={<ProtectedRoute roles={['owner']}><OwnerDashboard /></ProtectedRoute>} />
 
         {/* Default Redirect */}
         <Route path="/" element={<Navigate to="/table/1" />} />
