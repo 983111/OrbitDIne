@@ -25,19 +25,31 @@ export default function OrderTracking() {
 
     setLoadingOrder(true);
     fetch(`/api/orders/${orderId}`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Unable to load order details.');
+      .then(async (res) => {
+        const raw = await res.text();
+        let order: { status?: string; error?: string } = {};
+
+        if (raw) {
+          try {
+            order = JSON.parse(raw);
+          } catch {
+            throw new Error('Order service returned an invalid response.');
+          }
         }
-        return res.json();
+
+        if (!res.ok) {
+          throw new Error(order.error ?? 'Unable to load order details.');
+        }
+
+        return order;
       })
       .then((order) => {
         if (order?.status) {
           setStatus(order.status);
         }
       })
-      .catch(() => {
-        pushToast('Unable to load current status, listening for live updates.', 'info');
+      .catch((error: Error) => {
+        pushToast(error.message || 'Unable to load current status, listening for live updates.', 'info');
       })
       .finally(() => {
         setLoadingOrder(false);
