@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { Printer, CheckCircle2 } from 'lucide-react';
+import { authHeaders } from '@/lib/sessionAuth';
 
 export default function KitchenDisplay() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -8,13 +9,13 @@ export default function KitchenDisplay() {
   const updateStatus = async (orderId: number, status: string) => {
     await fetch(`/api/orders/${orderId}/status`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ status }),
     });
   };
 
   useEffect(() => {
-    fetch('/api/orders/active').then(res => res.json()).then(data => {
+    fetch('/api/orders/active', { headers: authHeaders() }).then(res => res.json()).then(data => {
       // Filter for kitchen relevant statuses
       setOrders(data.filter((o: any) => ['new', 'preparing'].includes(o.status)));
     });

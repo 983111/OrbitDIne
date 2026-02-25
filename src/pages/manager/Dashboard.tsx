@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Printer } from 'lucide-react';
 import { cn, formatCurrency, timeAgo } from '@/lib/utils';
 import { useToast } from '@/components/Toast';
+import { authHeaders } from '@/lib/sessionAuth';
 
 interface Order {
   id: number;
@@ -28,8 +29,8 @@ export default function ManagerDashboard() {
 
   useEffect(() => {
     // Initial Fetch
-    fetch('/api/orders/active').then(res => res.json()).then(setOrders).catch(() => pushToast('Failed to fetch active orders.', 'error'));
-    fetch('/api/tables').then(res => res.json()).then(setTables).catch(() => pushToast('Failed to fetch table status.', 'error'));
+    fetch('/api/orders/active', { headers: authHeaders() }).then(res => res.json()).then(setOrders).catch(() => pushToast('Failed to fetch active orders.', 'error'));
+    fetch('/api/tables', { headers: authHeaders() }).then(res => res.json()).then(setTables).catch(() => pushToast('Failed to fetch table status.', 'error'));
 
     // Real-time updates
     const socket = io();
@@ -64,14 +65,14 @@ export default function ManagerDashboard() {
   const updateStatus = async (orderId: number, status: string) => {
     await fetch(`/api/orders/${orderId}/status`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({ status })
     });
   };
 
   const printKitchenTicket = async (orderId: number) => {
     try {
-      const res = await fetch(`/api/orders/${orderId}/print`);
+      const res = await fetch(`/api/orders/${orderId}/print`, { headers: authHeaders() });
       const order = await res.json();
       const win = window.open('', '_blank', 'width=420,height=640');
       if (!win) return;
