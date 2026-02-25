@@ -1,7 +1,16 @@
 import { FormEvent, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LockKeyhole, ShieldCheck } from 'lucide-react';
+import type { AuthUser } from '@/lib/sessionAuth';
 import { saveAuthSession } from '@/lib/sessionAuth';
+
+const isAuthUser = (value: unknown): value is AuthUser => {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<AuthUser>;
+  return typeof candidate.id === 'number'
+    && typeof candidate.username === 'string'
+    && (candidate.role === 'manager' || candidate.role === 'owner');
+};
 
 export default function AuthLogin() {
   const navigate = useNavigate();
@@ -23,9 +32,22 @@ export default function AuthLogin() {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
+      const raw = await res.text();
+      let data: { error?: string; token?: string; user?: unknown } = {};
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          throw new Error('Login service returned an invalid response. Please try again.');
+        }
+      }
+
       if (!res.ok) {
         throw new Error(data.error ?? 'Login failed');
+      }
+
+      if (!data.token || !isAuthUser(data.user)) {
+        throw new Error('Login failed: missing auth token.');
       }
 
       saveAuthSession(data.token, data.user);
